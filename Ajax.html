@@ -1,0 +1,61 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $('#table_id').on('preXhr.dt', function (e, settings, data) {
+                console.log(data)
+                if (data.start > 1)
+                    data.page = (data.start / 20) + 1;
+            }).DataTable({
+                paging: true,
+                pageLength: 20,
+                serverSide: true,
+                ajax: {
+                    url: 'https://gorest.co.in/public/v1/users',
+                    method: 'GET',
+                    data: { page: 1 },
+                    dataFilter: function (data) {
+                        var json = JSON.parse(data);
+                        //json.draw = json.meta.pagination.page;
+                        json.recordsTotal = json.meta.pagination.total;
+                        json.recordsFiltered = json.meta.pagination.total;
+                        json.data = json.data;
+                        return JSON.stringify(json);
+                    }
+
+                },
+                drawCallback: function () {
+                    $('.userName').on('click', function () {
+                        _showUserDetails();
+                    });
+                },
+                processing: true,
+                columns: [
+                    { data: 'id' },
+                    { data: 'name', class: 'userName' },
+                ]
+            });
+            function _showUserDetails() {
+
+            }
+        });
+    </script>
+</head>
+
+<table id="table_id" class="display">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>User Name</th>
+        </tr>
+    </thead>
+</table>
+
+</html>
